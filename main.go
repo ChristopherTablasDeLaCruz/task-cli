@@ -21,33 +21,39 @@ func main() {
 		return
 	}
 	command := os.Args[1]
+
 	switch command {
 	case "add":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: Please provide a task description.")
 			return
 		}
-		description := os.Args[2]
-		var tasks []Task
-		data, err := os.ReadFile("tasks.json")
-		if err == nil {
-			json.Unmarshal(data, &tasks)
-		}
-		newTask := Task{
-			ID:          len(tasks) + 1,
-			Description: description,
-			Status:      "pending",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-		}
-		tasks = append(tasks, newTask)
-		saveTasks(tasks)
-		fmt.Printf("Task added successfully (ID: %d)\n", newTask.ID)
+		addTask(os.Args[2])
 	case "list":
-		fmt.Println("Listing all tasks...")
+		listTasks(getTasks())
 	default:
 		fmt.Println("Error: Unknown command:", command)
 	}
+}
+
+func addTask(description string) {
+	tasks := getTasks()
+	maxID := 0
+	for _, task := range tasks {
+		if task.ID > maxID {
+			maxID = task.ID
+		}
+	}
+	newTask := Task{
+		ID:          maxID + 1,
+		Description: description,
+		Status:      "todo",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	tasks = append(tasks, newTask)
+	saveTasks(tasks)
+	fmt.Println("Task added successfully.")
 }
 
 func saveTasks(tasks []Task) {
@@ -60,5 +66,29 @@ func saveTasks(tasks []Task) {
 	if err != nil {
 		fmt.Println("Error saving tasks:", err)
 		return
+	}
+}
+func getTasks() []Task {
+	var tasks []Task
+	data, err := os.ReadFile("tasks.json")
+	if err != nil {
+		return []Task{}
+	}
+	if err := json.Unmarshal(data, &tasks); err != nil {
+		fmt.Println("Error unmarshaling tasks:", err)
+		return []Task{}
+	}
+	return tasks
+}
+func listTasks(tasks []Task) {
+	if len(tasks) == 0 {
+		fmt.Println("No tasks found.")
+		return
+	}
+	fmt.Printf("%-5s %-25s %-5s\n", "ID", "Description", "Status")
+	fmt.Println("---------------------------------------")
+	for _, task := range tasks {
+		fmt.Printf("%-5d %-25s %-5s\n",
+			task.ID, task.Description, task.Status)
 	}
 }
