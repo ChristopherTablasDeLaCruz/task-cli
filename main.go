@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -31,6 +32,17 @@ func main() {
 		addTask(os.Args[2])
 	case "list":
 		listTasks(getTasks())
+	case "update":
+		if len(os.Args) < 4 {
+			fmt.Println("Error: Please provide task ID and new status.")
+			return
+		}
+		id, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("Error: Invalid task ID.")
+			return
+		}
+		updateTask(id, os.Args[3])
 	default:
 		fmt.Println("Error: Unknown command:", command)
 	}
@@ -91,4 +103,17 @@ func listTasks(tasks []Task) {
 		fmt.Printf("%-5d %-25s %-5s\n",
 			task.ID, task.Description, task.Status)
 	}
+}
+func updateTask(id int, description string) {
+	tasks := getTasks()
+	for i, task := range tasks {
+		if task.ID == id {
+			tasks[i].Description = description
+			tasks[i].UpdatedAt = time.Now()
+			saveTasks(tasks)
+			fmt.Println("Task updated successfully.")
+			return
+		}
+	}
+	fmt.Println("Error: Task with ID", id, "not found.")
 }
