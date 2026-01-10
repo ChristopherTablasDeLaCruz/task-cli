@@ -54,6 +54,28 @@ func main() {
 			return
 		}
 		deleteTask(id)
+	case "mark-in-progress":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: Please provide task ID to mark as in-progress.")
+			return
+		}
+		id, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("Error: Invalid task ID.")
+			return
+		}
+		markTask(id, "in-progress")
+	case "mark-done":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: Please provide task ID to mark as done.")
+			return
+		}
+		id, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("Error: Invalid task ID.")
+			return
+		}
+		markTask(id, "done")
 	default:
 		fmt.Println("Error: Unknown command:", command)
 	}
@@ -145,4 +167,17 @@ func deleteTask(id int) {
 	}
 	saveTasks(newTasks)
 	fmt.Println("Task deleted successfully.")
+}
+func markTask(id int, status string) {
+	tasks := getTasks()
+	for i, task := range tasks {
+		if task.ID == id {
+			tasks[i].Status = status
+			tasks[i].UpdatedAt = time.Now()
+			saveTasks(tasks)
+			fmt.Println("Task marked as", status, "successfully.")
+			return
+		}
+	}
+	fmt.Println("Error: Task with ID", id, "not found.")
 }
