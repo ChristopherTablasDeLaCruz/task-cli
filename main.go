@@ -43,6 +43,17 @@ func main() {
 			return
 		}
 		updateTask(id, os.Args[3])
+	case "delete":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: Please provide task ID to delete.")
+			return
+		}
+		id, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Println("Error: Invalid task ID.")
+			return
+		}
+		deleteTask(id)
 	default:
 		fmt.Println("Error: Unknown command:", command)
 	}
@@ -116,4 +127,22 @@ func updateTask(id int, description string) {
 		}
 	}
 	fmt.Println("Error: Task with ID", id, "not found.")
+}
+func deleteTask(id int) {
+	tasks := getTasks()
+	var newTasks []Task
+	found := false
+	for _, task := range tasks {
+		if task.ID == id {
+			found = true
+			continue
+		}
+		newTasks = append(newTasks, task)
+	}
+	if !found {
+		fmt.Println("Error: Task with ID", id, "not found.")
+		return
+	}
+	saveTasks(newTasks)
+	fmt.Println("Task deleted successfully.")
 }
