@@ -18,12 +18,14 @@ type Task struct {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: task-cli <command> [<args>]")
+		printUsage()
 		return
 	}
 	command := os.Args[1]
 
 	switch command {
+	case "help":
+		printUsage()
 	case "add":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: Please provide a task description.")
@@ -180,4 +182,15 @@ func markTask(id int, status string) {
 		}
 	}
 	fmt.Println("Error: Task with ID", id, "not found.")
+}
+func printUsage() {
+	fmt.Println("Usage: task-cli <command> [<args>]")
+	fmt.Println("Commands:")
+	fmt.Println("  add <description>         Add a new task")
+	fmt.Println("  list                      List all tasks")
+	fmt.Println("  update <id> <description> Update task description")
+	fmt.Println("  delete <id>               Delete a task")
+	fmt.Println("  mark-in-progress <id>     Mark a task as in-progress")
+	fmt.Println("  mark-done <id>            Mark a task as done")
+	fmt.Println("  help                      Show this help message")
 }
